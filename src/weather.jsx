@@ -2,13 +2,28 @@ import React, { useEffect, useState } from 'react';
 import search_icon from './assets/search.png';
 import humidity_icon from './assets/humidity.png';
 import wind_icon from './assets/wind.png';
+
+// Day icons
+import clear_day from './assets/animated/day.svg';
+import clouds_day from './assets/animated/cloudy-day-3.svg';
+import rain_day from './assets/animated/rainy-1.svg';
+import snow_day from './assets/animated/snowy-1.svg';
+import thunderstorm_day from './assets/animated/thunder.svg';
+
+// Night icons
+import clear_night from './assets/animated/night.svg';
+import clouds_night from './assets/animated/cloudy-night-3.svg';
+import rain_night from './assets/animated/rainy-4.svg';
+import snow_night from './assets/animated/snowy-4.svg';
+import thunderstorm_night from './assets/animated/thunder.svg';
+
+
 import './weather.css';
 
 const Weather = () => {
   const [cityInput, setCityInput] = useState(""); 
   const [weather, setWeather] = useState(false);
   const [backgroundClass, setBackgroundClass] = useState("clear");
-  const [iconKey, setIconKey] = useState(0); 
 
   const search = async (city) => {
     if (!city || city.trim() === "") {
@@ -16,12 +31,8 @@ const Weather = () => {
       return;
     }
 
-    console.log("City searched:", city);
-
     try {
       const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${import.meta.env.VITE_APP_ID}`;
-      console.log("API URL:", url);
-
       const response = await fetch(url);
       const data = await response.json();
 
@@ -30,27 +41,44 @@ const Weather = () => {
         return;
       }
 
-      console.log("Weather Data:", data.weather[0]);
-
-      const iconCode = data.weather[0].icon;
-    
-      const icon = `https://openweathermap.org/img/wn/${iconCode}@2x.png?t=${Date.now()}&r=${Math.random()}`;
-      console.log("Icon URL:", icon);
-
       const mainWeather = data.weather[0].main.toLowerCase();
+      const iconCode = data.weather[0].icon; // e.g. "01d" or "01n"
+      const isDay = iconCode.includes("d");
 
-      const weatherMap = {
+      // Set background class
+      const weatherClassMap = {
         clear: 'clear',
         clouds: 'clouds',
         rain: 'rain',
         drizzle: 'rain',
         thunderstorm: 'thunderstorm',
-        snow: 'snow',
-        mist: 'mist',
-        haze: 'mist',
-        fog: 'mist',
+        snow: 'snow'
       };
-      setBackgroundClass(weatherMap[mainWeather] || 'clear');
+      setBackgroundClass(weatherClassMap[mainWeather] || 'clear');
+
+      // Map to custom SVG icon
+      const iconMap = {
+        day: {
+          clear: clear_day,
+          clouds: clouds_day,
+          rain: rain_day,
+          drizzle: rain_day,
+          thunderstorm: thunderstorm_day,
+          snow: snow_day
+        },
+        night: {
+          clear: clear_night,
+          clouds: clouds_night,
+          rain: rain_night,
+          drizzle: rain_night,
+          thunderstorm: thunderstorm_night,
+          snow: snow_night
+        }
+      };
+
+      const icon = isDay
+        ? iconMap.day[mainWeather] || clear_day
+        : iconMap.night[mainWeather] || clear_night;
 
       const newWeatherData = {
         humidity: data.main.humidity,
@@ -58,21 +86,14 @@ const Weather = () => {
         temp: Math.floor(data.main.temp),
         location: data.name,
         icon: icon,
-        iconCode: iconCode,
       };
 
-      console.log("Setting new weather with icon:", icon);
       setWeather(newWeatherData);
-      
-    
-      setIconKey(prev => prev + 1);
-
     } catch (error) {
       console.error("Error fetching weather:", error);
       setWeather(false);
     }
   };
-
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
@@ -83,13 +104,6 @@ const Weather = () => {
   useEffect(() => {
     search("Bangalore");
   }, []);
-
-
-  useEffect(() => {
-    if (weather && weather.icon) {
-      setIconKey(prev => prev + 1);
-    }
-  }, [weather?.iconCode, weather?.location]);
 
   return (
     <div className={`app-container ${backgroundClass}`}>
@@ -116,13 +130,6 @@ const Weather = () => {
               src={weather.icon}
               alt="Weather icon"
               className="weather-icon"
-              key={`weather-icon-${weather.location}-${weather.iconCode}-${iconKey}`}
-              onLoad={() => console.log("Weather icon loaded:", weather.icon)}
-              onError={(e) => {
-                console.error("Error loading weather icon:", e);
-              
-                e.target.src = `https://openweathermap.org/img/wn/${weather.iconCode}@2x.png`;
-              }}
             />
             <p className="temperature">{weather.temp}°C</p>
             <p className="location">{weather.location}</p>
