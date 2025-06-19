@@ -3,14 +3,14 @@ import search_icon from './assets/search.png';
 import humidity_icon from './assets/humidity.png';
 import wind_icon from './assets/wind.png';
 
-// Day icons
+
 import clear_day from './assets/animated/day.svg';
 import clouds_day from './assets/animated/cloudy-day-3.svg';
 import rain_day from './assets/animated/rainy-1.svg';
 import snow_day from './assets/animated/snowy-1.svg';
 import thunderstorm_day from './assets/animated/thunder.svg';
 
-// Night icons
+
 import clear_night from './assets/animated/night.svg';
 import clouds_night from './assets/animated/cloudy-night-3.svg';
 import rain_night from './assets/animated/rainy-4.svg';
@@ -42,10 +42,10 @@ const Weather = () => {
       }
 
       const mainWeather = data.weather[0].main.toLowerCase();
-      const iconCode = data.weather[0].icon; // e.g. "01d" or "01n"
+      const iconCode = data.weather[0].icon; 
       const isDay = iconCode.includes("d");
 
-      // Set background class
+      
       const weatherClassMap = {
         clear: 'clear',
         clouds: 'clouds',
@@ -56,7 +56,7 @@ const Weather = () => {
       };
       setBackgroundClass(weatherClassMap[mainWeather] || 'clear');
 
-      // Map to custom SVG icon
+    
       const iconMap = {
         day: {
           clear: clear_day,
