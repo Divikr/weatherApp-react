@@ -3,27 +3,27 @@ import search_icon from './assets/search.png';
 import humidity_icon from './assets/humidity.png';
 import wind_icon from './assets/wind.png';
 
-
 import clear_day from './assets/animated/day.svg';
-import clouds_day from './assets/animated/cloudy-day-3.svg';
-import rain_day from './assets/animated/rainy-1.svg';
-import snow_day from './assets/animated/snowy-1.svg';
-import thunderstorm_day from './assets/animated/thunder.svg';
-
-
 import clear_night from './assets/animated/night.svg';
+import clouds_day from './assets/animated/cloudy-day-3.svg';
 import clouds_night from './assets/animated/cloudy-night-3.svg';
+import rain_day from './assets/animated/rainy-1.svg';
 import rain_night from './assets/animated/rainy-4.svg';
+import snow_day from './assets/animated/snowy-1.svg';
 import snow_night from './assets/animated/snowy-4.svg';
+import thunderstorm_day from './assets/animated/thunder.svg';
 import thunderstorm_night from './assets/animated/thunder.svg';
 
+
+import dayBackground from './assets/day-background.jpg';
+import nightBackground from './assets/night-background.jpg';
 
 import './weather.css';
 
 const Weather = () => {
   const [cityInput, setCityInput] = useState(""); 
   const [weather, setWeather] = useState(false);
-  const [backgroundClass, setBackgroundClass] = useState("clear");
+  const [isDay, setIsDay] = useState(true);
 
   const search = async (city) => {
     if (!city || city.trim() === "") {
@@ -41,22 +41,11 @@ const Weather = () => {
         return;
       }
 
+      const iconCode = data.weather[0].icon;
       const mainWeather = data.weather[0].main.toLowerCase();
-      const iconCode = data.weather[0].icon; 
-      const isDay = iconCode.includes("d");
+      const dayTime = iconCode.includes("d");
+      setIsDay(dayTime); 
 
-      
-      const weatherClassMap = {
-        clear: 'clear',
-        clouds: 'clouds',
-        rain: 'rain',
-        drizzle: 'rain',
-        thunderstorm: 'thunderstorm',
-        snow: 'snow'
-      };
-      setBackgroundClass(weatherClassMap[mainWeather] || 'clear');
-
-    
       const iconMap = {
         day: {
           clear: clear_day,
@@ -76,7 +65,7 @@ const Weather = () => {
         }
       };
 
-      const icon = isDay
+      const icon = dayTime
         ? iconMap.day[mainWeather] || clear_day
         : iconMap.night[mainWeather] || clear_night;
 
@@ -105,8 +94,13 @@ const Weather = () => {
     search("Bangalore");
   }, []);
 
+  const backgroundImage = isDay ? dayBackground : nightBackground;
+
   return (
-    <div className={`app-container ${backgroundClass}`}>
+    <div
+      className="app-container"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
       <div className="weather">
         <div className="search-bar">
           <input
@@ -120,17 +114,12 @@ const Weather = () => {
             src={search_icon}
             alt="Search Icon"
             onClick={() => search(cityInput)}
-            style={{ cursor: 'pointer' }}
           />
         </div>
 
         {weather && (
           <>
-            <img
-              src={weather.icon}
-              alt="Weather icon"
-              className="weather-icon"
-            />
+            <img src={weather.icon} alt="Weather icon" className="weather-icon" />
             <p className="temperature">{weather.temp}°C</p>
             <p className="location">{weather.location}</p>
             <div className="weather-data">
